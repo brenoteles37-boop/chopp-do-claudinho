@@ -99,10 +99,14 @@
         const appId = firebaseConfig.projectId;
 
         let userId;
+        let db;
 
-        const loadData = async (db) => {
+        const loadData = async () => {
             try {
-                // Acessa o documento de forma mais explícita para evitar erros
+                if (!db) {
+                    console.error("Banco de dados não está pronto para carregar dados.");
+                    return;
+                }
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
                 const docSnap = await getDoc(docRef);
 
@@ -130,7 +134,7 @@
             }
         };
 
-        const saveData = async (event, db) => {
+        const saveData = async (event) => {
             event.preventDefault();
             const statusMessage = document.getElementById('status-message');
             statusMessage.classList.add('hidden');
@@ -154,7 +158,6 @@
                     footerAddress: document.getElementById('footer-address').value,
                 };
 
-                // Acessa o documento de forma mais explícita para evitar erros
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
                 await setDoc(docRef, data, { merge: true });
 
@@ -173,16 +176,16 @@
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
+                db = getFirestore(app);
                 const auth = getAuth(app);
                 
                 await signInAnonymously(auth);
                 userId = auth.currentUser.uid;
                 
                 console.log("Firebase e autenticação inicializados com sucesso!");
-                await loadData(db);
+                await loadData();
 
-                document.getElementById('admin-form').addEventListener('submit', (event) => saveData(event, db));
+                document.getElementById('admin-form').addEventListener('submit', saveData);
             } catch (error) {
                 console.error("Erro ao inicializar o Firebase ou autenticar:", error);
             }
