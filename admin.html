@@ -87,17 +87,24 @@
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        // As variáveis globais __app_id, __firebase_config e __initial_auth_token
-        // são fornecidas pelo ambiente do Canvas.
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        // **PASSO IMPORTANTE:** Substitua o objeto 'firebaseConfig' abaixo com as suas credenciais
+        // Você pode encontrá-las em: Firebase Console -> Configurações do projeto -> Suas aplicações
+        const firebaseConfig = {
+  apiKey: "AIzaSyBJuQYiYJrFRwNo2uHXK3M4fPet1AEE6Es",
+  authDomain: "chopp-do-claudinho.firebaseapp.com",
+  projectId: "chopp-do-claudinho",
+  storageBucket: "chopp-do-claudinho.firebasestorage.app",
+  messagingSenderId: "790321862343",
+  appId: "1:790321862343:web:f6a8acdd2cd0863d1110e2"
+};
+        
+        const appId = firebaseConfig.projectId;
 
         let app;
         let db;
         let auth;
         let userId;
 
-        // Função de inicialização do Firebase e autenticação
         const initializeFirebase = async () => {
             try {
                 if (Object.keys(firebaseConfig).length > 0) {
@@ -111,14 +118,13 @@
                     console.log("Firebase e autenticação inicializados com sucesso!");
                     loadData();
                 } else {
-                    console.error("Configuração do Firebase não encontrada. Verifique as variáveis do ambiente.");
+                    console.error("Configuração do Firebase não encontrada. Por favor, adicione suas credenciais.");
                 }
             } catch (error) {
                 console.error("Erro ao inicializar o Firebase ou autenticar:", error);
             }
         };
 
-        // Carrega os dados do Firestore e preenche os campos do formulário
         const loadData = async () => {
             try {
                 const docRef = doc(db, `artifacts/${appId}/users/${userId}/config/content`);
@@ -148,7 +154,6 @@
             }
         };
 
-        // Função para salvar os dados do formulário no Firestore
         const saveData = async (event) => {
             event.preventDefault();
             const statusMessage = document.getElementById('status-message');
