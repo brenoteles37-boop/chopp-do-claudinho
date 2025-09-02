@@ -90,13 +90,13 @@
         // **PASSO IMPORTANTE:** Substitua o objeto 'firebaseConfig' abaixo com as suas credenciais
         // Você pode encontrá-las em: Firebase Console -> Configurações do projeto -> Suas aplicações
         const firebaseConfig = {
-  apiKey: "AIzaSyBJuQYiYJrFRwNo2uHXK3M4fPet1AEE6Es",
-  authDomain: "chopp-do-claudinho.firebaseapp.com",
-  projectId: "chopp-do-claudinho",
-  storageBucket: "chopp-do-claudinho.firebasestorage.app",
-  messagingSenderId: "790321862343",
-  appId: "1:790321862343:web:f6a8acdd2cd0863d1110e2"
-};
+            apiKey: "AIzaSyBJuQYiYJrFRwNo2uHXK3M4fPet1AEE6Es",
+            authDomain: "chopp-do-claudinho.firebaseapp.com",
+            projectId: "chopp-do-claudinho",
+            storageBucket: "chopp-do-claudinho.firebasestorage.app",
+            messagingSenderId: "790321862343",
+            appId: "1:790321862343:web:f6a8acdd2cd0863d1110e2"
+        };
         
         const appId = firebaseConfig.projectId;
 
@@ -127,7 +127,8 @@
 
         const loadData = async () => {
             try {
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/config/content`);
+                // Acessa o documento de forma mais explícita para evitar erros
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -174,7 +175,8 @@
                     footerAddress: document.getElementById('footer-address').value,
                 };
 
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/config/content`);
+                // Acessa o documento de forma mais explícita para evitar erros
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
                 await setDoc(docRef, data, { merge: true });
 
                 statusMessage.textContent = 'Alterações salvas com sucesso!';
