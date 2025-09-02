@@ -87,8 +87,6 @@
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
-        // **PASSO IMPORTANTE:** Substitua o objeto 'firebaseConfig' abaixo com as suas credenciais
-        // Você pode encontrá-las em: Firebase Console -> Configurações do projeto -> Suas aplicações
         const firebaseConfig = {
             apiKey: "AIzaSyBJuQYiYJrFRwNo2uHXK3M4fPet1AEE6Es",
             authDomain: "chopp-do-claudinho.firebaseapp.com",
@@ -100,32 +98,9 @@
         
         const appId = firebaseConfig.projectId;
 
-        let app;
-        let db;
-        let auth;
         let userId;
 
-        const initializeFirebase = async () => {
-            try {
-                if (Object.keys(firebaseConfig).length > 0) {
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-                    
-                    await signInAnonymously(auth);
-                    userId = auth.currentUser.uid;
-                    
-                    console.log("Firebase e autenticação inicializados com sucesso!");
-                    loadData();
-                } else {
-                    console.error("Configuração do Firebase não encontrada. Por favor, adicione suas credenciais.");
-                }
-            } catch (error) {
-                console.error("Erro ao inicializar o Firebase ou autenticar:", error);
-            }
-        };
-
-        const loadData = async () => {
+        const loadData = async (db) => {
             try {
                 // Acessa o documento de forma mais explícita para evitar erros
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
@@ -155,12 +130,16 @@
             }
         };
 
-        const saveData = async (event) => {
+        const saveData = async (event, db) => {
             event.preventDefault();
             const statusMessage = document.getElementById('status-message');
             statusMessage.classList.add('hidden');
 
             try {
+                if (!db) {
+                    throw new Error("O banco de dados do Firebase não está pronto.");
+                }
+
                 const data = {
                     headerTitle: document.getElementById('header-title').value,
                     headerSubtitle: document.getElementById('header-subtitle').value,
@@ -191,9 +170,22 @@
             }
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeFirebase();
-            document.getElementById('admin-form').addEventListener('submit', saveData);
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+                
+                await signInAnonymously(auth);
+                userId = auth.currentUser.uid;
+                
+                console.log("Firebase e autenticação inicializados com sucesso!");
+                await loadData(db);
+
+                document.getElementById('admin-form').addEventListener('submit', (event) => saveData(event, db));
+            } catch (error) {
+                console.error("Erro ao inicializar o Firebase ou autenticar:", error);
+            }
         });
     </script>
 </body>
