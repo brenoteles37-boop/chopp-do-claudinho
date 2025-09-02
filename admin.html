@@ -7,6 +7,56 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Incluindo as bibliotecas do Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // As variáveis globais __app_id, __firebase_config e __initial_auth_token
+        // são fornecidas pelo ambiente do Canvas e são essenciais para a autenticação.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId;
+
+        // Função de inicialização do Firebase e autenticação
+        const initializeFirebase = async () => {
+            try {
+                if (Object.keys(firebaseConfig).length > 0) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    if (initialAuthToken) {
+                        const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                        userId = userCredential.user.uid;
+                        console.log("Usuário autenticado com sucesso!");
+                    } else {
+                        const userCredential = await signInAnonymously(auth);
+                        userId = userCredential.user.uid;
+                        console.log("Usuário anônimo autenticado com sucesso!");
+                    }
+                } else {
+                    console.error("Configuração do Firebase não encontrada. Verifique as variáveis do ambiente.");
+                }
+            } catch (error) {
+                console.error("Erro ao inicializar o Firebase ou autenticar:", error);
+            }
+        };
+
+        window.firebaseUtils = {
+            db, auth, userId, initializeFirebase, doc, getDoc, setDoc, onSnapshot, collection, query, where, signInAnonymously
+        };
+
+        // Chama a função de inicialização
+        initializeFirebase();
+
+    </script>
 </head>
 <body class="bg-gray-100 font-sans antialiased p-4 md:p-8">
 
