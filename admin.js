@@ -1,159 +1,111 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+// As variáveis globais __app_id, __firebase_config e __initial_auth_token
+// são fornecidas pelo ambiente do Canvas.
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
-let currentData = {};
-const adminForm = document.getElementById('admin-form');
-const statusMessage = document.getElementById('status-message');
+// Importa as funções do Firebase que serão utilizadas
+const { initializeApp } = firebase;
+const { getFirestore, doc, setDoc, getDoc } = firebase.firestore;
+const { getAuth, signInAnonymously } = firebase.auth;
 
-const createProductFields = (products, container) => {
-    container.innerHTML = '';
-    products.forEach(product => {
-        const productDiv = document.createElement('div');
-        productDiv.className = 'bg-gray-50 p-4 rounded-md shadow-inner space-y-2';
-        
-        let priceUnit = product.unit || ' / litro';
-        if (product.id === 'grill') {
-            priceUnit = ' / diária';
+let app;
+let db;
+let auth;
+let userId;
+
+// Função de inicialização do Firebase e autenticação
+const initializeFirebase = async () => {
+    try {
+        if (Object.keys(firebaseConfig).length > 0) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // Autentica o usuário anonimamente para ter permissões de escrita
+            await signInAnonymously(auth);
+            userId = auth.currentUser.uid;
+            
+            console.log("Firebase e autenticação inicializados com sucesso!");
+            
+            // Carrega os dados para o formulário após a inicialização
+            loadData();
+        } else {
+            console.error("Configuração do Firebase não encontrada. Verifique as variáveis do ambiente.");
         }
-
-        const priceId = product.price ? 'price' : 'pricePerLiter';
-        const priceValue = product.price ? product.price : product.pricePerLiter;
-
-        productDiv.innerHTML = `
-            <h3 class="font-medium text-gray-800">${product.name}</h3>
-            <div>
-                <label for="${product.id}-name" class="block text-xs font-medium text-gray-500">Nome</label>
-                <input type="text" id="${product.id}-name" name="${product.id}-name" value="${product.name}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm">
-            </div>
-            <div>
-                <label for="${product.id}-${priceId}" class="block text-xs font-medium text-gray-500">Preço</label>
-                <input type="number" id="${product.id}-${priceId}" name="${product.id}-${priceId}" value="${priceValue}" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm">
-                <span class="text-xs text-gray-400">${priceUnit}</span>
-            </div>
-            <div class="flex items-center space-x-2">
-                <input type="checkbox" id="${product.id}-hidden" name="${product.id}-hidden" ${product.hidden ? 'checked' : ''} class="rounded text-red-600">
-                <label for="${product.id}-hidden" class="text-xs font-medium text-gray-700">Ocultar produto no site</label>
-            </div>
-        `;
-        container.appendChild(productDiv);
-    });
-};
-
-const populateForm = (data) => {
-    currentData = data;
-    const texts = data.texts || {};
-    const products = data.products || { chopps: [], supplies: [], rentals: [] };
-
-    // Preenche campos de texto
-    for (const key in texts) {
-        const input = document.getElementById(key);
-        if (input) {
-            input.value = texts[key];
-        }
+    } catch (error) {
+        console.error("Erro ao inicializar o Firebase ou autenticar:", error);
     }
-
-    // Preenche campos de produtos dinamicamente
-    const container = document.getElementById('product-prices-container');
-    container.innerHTML = '';
-    
-    // Adiciona o título para a seção de Chopps
-    const choppsTitle = document.createElement('h3');
-    choppsTitle.className = 'text-xl font-semibold mt-6 mb-2';
-    choppsTitle.textContent = 'Chopps';
-    container.appendChild(choppsTitle);
-    
-    createProductFields(products.chopps, container);
-
-    // Adiciona o título para a seção de Outros Produtos
-    const suppliesTitle = document.createElement('h3');
-    suppliesTitle.className = 'text-xl font-semibold mt-6 mb-2';
-    suppliesTitle.textContent = 'Outros Produtos e Locação';
-    container.appendChild(suppliesTitle);
-
-    createProductFields([...products.supplies, ...products.rentals], container);
 };
 
-adminForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Carrega os dados do Firestore e preenche os campos do formulário
+const loadData = async () => {
+    try {
+        const docRef = doc(db, `artifacts/${appId}/users/${userId}/config/content`);
+        const docSnap = await getDoc(docRef);
 
-    statusMessage.textContent = 'Salvando...';
-    statusMessage.classList.remove('hidden', 'text-green-600', 'text-red-600');
-    statusMessage.classList.add('text-gray-600');
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            console.log("Dados carregados com sucesso:", data);
+            
+            // Preenche os campos de texto do formulário
+            document.getElementById('header-title').value = data.headerTitle || '';
+            document.getElementById('header-subtitle').value = data.headerSubtitle || '';
+            document.getElementById('chopp-section-title').value = data.choppSectionTitle || '';
+            document.getElementById('supplies-section-title').value = data.suppliesSectionTitle || '';
+            document.getElementById('rental-section-title').value = data.rentalSectionTitle || '';
+            document.getElementById('calculator-section-title').value = data.calculatorSectionTitle || '';
+            document.getElementById('footer-text').value = data.footerText || '';
+            document.getElementById('footer-contact-title').value = data.footerContactTitle || '';
+            document.getElementById('footer-phone').value = data.footerPhone || '';
+            document.getElementById('footer-email').value = data.footerEmail || '';
+            document.getElementById('footer-address').value = data.footerAddress || '';
+            
+        } else {
+            console.log("Nenhum dado encontrado. O formulário está vazio.");
+        }
+    } catch (e) {
+        console.error("Erro ao ler os dados do Firestore:", e);
+    }
+};
+
+// Função para salvar os dados do formulário no Firestore
+const saveData = async (event) => {
+    event.preventDefault();
+    const statusMessage = document.getElementById('status-message');
+    statusMessage.classList.add('hidden');
 
     try {
-        const formData = new FormData(adminForm);
-        const newData = {
-            texts: {},
-            products: {
-                chopps: JSON.parse(JSON.stringify(currentData.products.chopps)),
-                supplies: JSON.parse(JSON.stringify(currentData.products.supplies)),
-                rentals: JSON.parse(JSON.stringify(currentData.products.rentals))
-            },
-            lastUpdated: serverTimestamp()
+        const data = {
+            headerTitle: document.getElementById('header-title').value,
+            headerSubtitle: document.getElementById('header-subtitle').value,
+            choppSectionTitle: document.getElementById('chopp-section-title').value,
+            suppliesSectionTitle: document.getElementById('supplies-section-title').value,
+            rentalSectionTitle: document.getElementById('rental-section-title').value,
+            calculatorSectionTitle: document.getElementById('calculator-section-title').value,
+            footerText: document.getElementById('footer-text').value,
+            footerContactTitle: document.getElementById('footer-contact-title').value,
+            footerPhone: document.getElementById('footer-phone').value,
+            footerEmail: document.getElementById('footer-email').value,
+            footerAddress: document.getElementById('footer-address').value,
         };
 
-        // Coleta textos
-        for (const key in currentData.texts) {
-            newData.texts[key] = formData.get(key);
-        }
-
-        // Coleta preços e status de visibilidade
-        [...newData.products.chopps, ...newData.products.supplies, ...newData.products.rentals].forEach(product => {
-            product.name = formData.get(`${product.id}-name`);
-            if (product.price) {
-                product.price = parseFloat(formData.get(`${product.id}-price`));
-            } else if (product.pricePerLiter) {
-                product.pricePerLiter = parseFloat(formData.get(`${product.id}-pricePerLiter`));
-            }
-            product.hidden = formData.get(`${product.id}-hidden`) === 'on';
-        });
-
-        // Atualiza o documento no Firestore
-        const dataDocRef = doc(db, `artifacts/${appId}/public/data/site-data`);
-        await setDoc(dataDocRef, newData);
+        const docRef = doc(db, `artifacts/${appId}/users/${userId}/config/content`);
+        await setDoc(docRef, data, { merge: true });
 
         statusMessage.textContent = 'Alterações salvas com sucesso!';
-        statusMessage.classList.remove('text-gray-600', 'hidden');
+        statusMessage.classList.remove('hidden');
         statusMessage.classList.add('text-green-600');
-    } catch (error) {
-        console.error("Erro ao salvar o documento:", error);
-        statusMessage.textContent = 'Erro ao salvar. Tente novamente.';
-        statusMessage.classList.remove('text-gray-600', 'hidden');
+        console.log("Documento gravado com ID: ", docRef.id);
+    } catch (e) {
+        statusMessage.textContent = 'Erro ao salvar: ' + e.message;
+        statusMessage.classList.remove('hidden');
         statusMessage.classList.add('text-red-600');
+        console.error("Erro ao adicionar documento: ", e);
     }
-});
+};
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        if (typeof __initial_auth_token !== 'undefined') {
-            await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-            await signInAnonymously(auth);
-        }
-        
-        const dataDocRef = doc(db, `artifacts/${appId}/public/data/site-data`);
-        
-        onSnapshot(dataDocRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                populateForm(docSnapshot.data());
-            } else {
-                console.log("Documento não encontrado. Recarregue a página principal para inicializar os dados.");
-                statusMessage.textContent = 'Dados não encontrados. Recarregue a página principal primeiro.';
-                statusMessage.classList.remove('hidden');
-                statusMessage.classList.add('text-red-600');
-            }
-        }, (error) => {
-            console.error("Erro na escuta de dados: ", error);
-        });
-
-    } catch (error) {
-        console.error("Erro de autenticação ou conexão com o Firestore:", error);
-    }
+// Inicializa o Firebase ao carregar a página
+document.addEventListener('DOMContentLoaded', () => {
+    initializeFirebase();
+    document.getElementById('admin-form').addEventListener('submit', saveData);
 });
