@@ -101,12 +101,10 @@
         const initializeFirebase = async () => {
             try {
                 if (Object.keys(firebaseConfig).length > 0) {
-                    // Usa a função initializeApp diretamente, sem a palavra-chave 'firebase.'
                     app = initializeApp(firebaseConfig);
                     db = getFirestore(app);
                     auth = getAuth(app);
                     
-                    // Autentica o usuário anonimamente para ter permissões de escrita
                     await signInAnonymously(auth);
                     userId = auth.currentUser.uid;
                     
