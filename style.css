@@ -1,0 +1,50 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f4;
+    color: #555;
+}
+.btn-whatsapp {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 50;
+}
+@media (max-width: 768px) {
+    .btn-whatsapp {
+        bottom: 1rem;
+        right: 1rem;
+    }
+}
+.counter-btn {
+    background-color: #ee1d23;
+    color: white;
+    border-radius: 9999px;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition-property: background-color;
+    transition-duration: 300ms;
+}
+.counter-btn:hover {
+    background-color: #b91c1c;
+}
+.counter-display {
+    width: 4rem;
+    text-align: center;
+    -moz-appearance: textfield;
+}
+.counter-display::-webkit-outer-spin-button,
+.counter-display::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.counter-group {
+    display: none;
+}
+.counter-group.active {
+    display: flex;
+}

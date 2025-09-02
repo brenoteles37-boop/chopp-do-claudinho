@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração - Chopp do Claudinho</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 font-sans antialiased p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-10">
+        <h1 class="text-3xl font-bold text-center text-[#ee1d23] mb-8">Painel de Administração</h1>
+        <p class="text-center text-gray-600 mb-8">Altere os textos e preços do site. Clique em "Salvar Alterações" para atualizar o site em tempo real.</p>
+        
+        <form id="admin-form" class="space-y-8">
+            <!-- Seção Textos do Site -->
+            <section>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Textos do Site</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="header-title" class="block text-sm font-medium text-gray-700">Título do Cabeçalho</label>
+                        <input type="text" id="header-title" name="header-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="header-subtitle" class="block text-sm font-medium text-gray-700">Subtítulo do Cabeçalho</label>
+                        <input type="text" id="header-subtitle" name="header-subtitle" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="chopp-section-title" class="block text-sm font-medium text-gray-700">Título da Seção de Chopps</label>
+                        <input type="text" id="chopp-section-title" name="chopp-section-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="supplies-section-title" class="block text-sm font-medium text-gray-700">Título da Seção de Suprimentos</label>
+                        <input type="text" id="supplies-section-title" name="supplies-section-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="rental-section-title" class="block text-sm font-medium text-gray-700">Título da Seção de Locação</label>
+                        <input type="text" id="rental-section-title" name="rental-section-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="calculator-section-title" class="block text-sm font-medium text-gray-700">Título da Calculadora</label>
+                        <input type="text" id="calculator-section-title" name="calculator-section-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="footer-text" class="block text-sm font-medium text-gray-700">Texto do Rodapé</label>
+                        <input type="text" id="footer-text" name="footer-text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="footer-contact-title" class="block text-sm font-medium text-gray-700">Título do Contato do Rodapé</label>
+                        <input type="text" id="footer-contact-title" name="footer-contact-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="footer-phone" class="block text-sm font-medium text-gray-700">Telefone do Rodapé</label>
+                        <input type="text" id="footer-phone" name="footer-phone" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="footer-email" class="block text-sm font-medium text-gray-700">E-mail do Rodapé</label>
+                        <input type="email" id="footer-email" name="footer-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label for="footer-address" class="block text-sm font-medium text-gray-700">Endereço do Rodapé</label>
+                        <input type="text" id="footer-address" name="footer-address" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção de Preços -->
+            <section>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Preços dos Produtos</h2>
+                <div id="product-prices-container" class="space-y-6">
+                    <!-- Campos de preço serão gerados aqui dinamicamente -->
+                </div>
+            </section>
+            
+            <button type="submit" class="w-full bg-[#ee1d23] text-white font-bold py-3 px-6 rounded-full mt-6 transition-colors duration-300 hover:bg-red-700 shadow-lg">Salvar Alterações</button>
+            <p id="status-message" class="text-center mt-4 text-sm font-medium hidden"></p>
+        </form>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

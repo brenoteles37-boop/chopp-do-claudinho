@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chopp do Claudinho - Catálogo de Produtos e Orçamento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            color: #555;
+        }
+        .btn-whatsapp {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+        }
+        @media (max-width: 768px) {
+            .btn-whatsapp {
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+        .counter-btn {
+            background-color: #ee1d23;
+            color: white;
+            border-radius: 9999px;
+            width: 2rem;
+            height: 2rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition-property: background-color;
+            transition-duration: 300ms;
+        }
+        .counter-btn:hover {
+            background-color: #b91c1c;
+        }
+        .counter-display {
+            width: 4rem;
+            text-align: center;
+            -moz-appearance: textfield;
+        }
+        .counter-display::-webkit-outer-spin-button,
+        .counter-display::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .counter-group {
+            display: none;
+        }
+        .counter-group.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-[#ee1d23] text-white text-center py-12 rounded-b-3xl shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">Chopp do Claudinho</h1>
+            <p class="text-lg md:text-xl font-light">Sua distribuidora de chopp e suprimentos para festas!</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-16">
+
+        <!-- Produtos - Chopps -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#ee1d23] mb-8">Chopps Especiais</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card: Chopp Pilsen -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Chopp Pilsen</h3>
+                    <p class="text-sm mt-2 text-gray-600">R$ 10,00 / litro</p>
+                    <div class="mt-4 flex justify-center space-x-2">
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="pilsen" data-liters="30">30 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="pilsen" data-liters="50">50 Litros</button>
+                    </div>
+                    <div class="chopp-total mt-4 space-y-1"></div>
+                </div>
+                <!-- Card: Chopp Brahma -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Chopp Brahma</h3>
+                    <p class="text-sm mt-2 text-gray-600">R$ 18,00 / litro</p>
+                    <div class="mt-4 flex justify-center space-x-2">
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="brahma" data-liters="30">30 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="brahma" data-liters="50">50 Litros</button>
+                    </div>
+                    <div class="chopp-total mt-4 space-y-1"></div>
+                </div>
+                <!-- Card: Chopp IPA -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Chopp IPA</h3>
+                    <p class="text-sm mt-2 text-gray-600">R$ 15,00 / litro</p>
+                    <div class="mt-4 flex justify-center space-x-2">
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="ipa" data-liters="10">10 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="ipa" data-liters="20">20 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="ipa" data-liters="30">30 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="ipa" data-liters="50">50 Litros</button>
+                    </div>
+                    <div class="chopp-total mt-4 space-y-1"></div>
+                </div>
+                <!-- Card: Chopp Vinho -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Chopp Vinho</h3>
+                    <p class="text-sm mt-2 text-gray-600">R$ 15,00 / litro</p>
+                    <div class="mt-4 flex justify-center space-x-2">
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="vinho" data-liters="10">10 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="vinho" data-liters="20">20 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="vinho" data-liters="30">30 Litros</button>
+                        <button class="btn-barrel bg-[#ee1d23] text-white py-2 px-4 rounded-full font-semibold transition-colors duration-200" data-chopp="vinho" data-liters="50">50 Litros</button>
+                    </div>
+                    <div class="chopp-total mt-4 space-y-1"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Produtos - Suprimentos -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#ee1d23] mb-8">Outros Produtos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card: Carvão -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Carvão</h3>
+                    <p class="text-xl font-bold text-[#ee1d23]">R$ 50,00 <span class="text-base font-normal">/ 10kg</span></p>
+                </div>
+                <!-- Card: Gelo em Cubo -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Gelo em Cubo</h3>
+                    <p class="text-xl font-bold text-[#ee1d23]">R$ 12,00 <span class="text-base font-normal">/ 5kg</span></p>
+                </div>
+                <!-- Card: Gelo Triturado -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Gelo Triturado</h3>
+                    <p class="text-xl font-bold text-[#ee1d23]">R$ 25,00 <span class="text-base font-normal">/ 25kg</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Locação -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#ee1d23] mb-8">Locação</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card: Caixa Térmica -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Caixa Térmica</h3>
+                    <p class="text-xl font-bold text-[#ee1d23]">R$ 150,00 <span class="text-base font-normal">/ diária</span></p>
+                </div>
+                <!-- Card: Jogo de Mesa -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Jogo de Mesa</h3>
+                    <p class="text-xl font-bold text-[#ee1d23]">R$ 15,00 <span class="text-base font-normal">/ diária</span></p>
+                </div>
+                <!-- Card: Churrasqueira -->
+                <div class="bg-white rounded-xl shadow-md p-6 text-center transition-transform transform hover:scale-105">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Churrasqueira</h3>
+                    <p class="text-xl font-bold text-[#ee1d23]">R$ 150,00 <span class="text-base font-normal">/ diária</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculadora de Orçamento Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#ee1d23] mb-8">Calcule sua festa</h2>
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-10">
+                <div class="space-y-6">
+                    <!-- Contagem de Pessoas -->
+                    <div class="flex flex-col space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label for="drinking-adults" class="text-lg font-medium text-gray-700">Adultos que bebem bebida alcoólica:</label>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" class="counter-btn" data-target="drinking-adults" data-action="decrement">-</button>
+                                <input type="number" id="drinking-adults" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="drinking-adults" data-action="increment">+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label for="non-drinking-adults" class="text-lg font-medium text-gray-700">Adultos que não bebem:</label>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" class="counter-btn" data-target="non-drinking-adults" data-action="decrement">-</button>
+                                <input type="number" id="non-drinking-adults" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="non-drinking-adults" data-action="increment">+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label for="children" class="text-lg font-medium text-gray-700">Crianças:</label>
+                            <div class="flex items-center space-x-2">
+                                <button type="button" class="counter-btn" data-target="children" data-action="decrement">-</button>
+                                <input type="number" id="children" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="children" data-action="increment">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seleção de Chopp -->
+                    <div class="pt-4 space-y-4">
+                        <p class="text-lg font-medium text-gray-700">Selecione o(s) tipo(s) de chopp:</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label id="chopp-pilsen-label" class="flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 bg-[#ee1d23] text-white">
+                                <input type="checkbox" id="chopp-pilsen" class="hidden">
+                                <span class="font-medium text-center w-full">Chopp Pilsen</span>
+                            </label>
+                            <label id="chopp-brahma-label" class="flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 bg-[#ee1d23] text-white">
+                                <input type="checkbox" id="chopp-brahma" class="hidden">
+                                <span class="font-medium text-center w-full">Chopp Brahma</span>
+                            </label>
+                            <label id="chopp-ipa-label" class="flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 bg-[#ee1d23] text-white">
+                                <input type="checkbox" id="chopp-ipa" class="hidden">
+                                <span class="font-medium text-center w-full">Chopp IPA</span>
+                            </label>
+                            <label id="chopp-vinho-label" class="flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-200 bg-[#ee1d23] text-white">
+                                <input type="checkbox" id="chopp-vinho" class="hidden">
+                                <span class="font-medium text-center w-full">Chopp Vinho</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Itens do Checklist com Botões de Quantidade -->
+                    <div class="pt-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-lg font-medium text-gray-700 flex items-center">
+                                <input type="checkbox" id="check-tables" class="h-5 w-5 text-[#ee1d23] rounded-md focus:ring-[#ee1d23] mr-2">
+                                <span>Precisa de jogo de mesa?</span>
+                            </label>
+                            <div class="items-center space-x-2 counter-group" id="counter-tables">
+                                <button type="button" class="counter-btn" data-target="need-tables" data-action="decrement">-</button>
+                                <input type="number" id="need-tables" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="need-tables" data-action="increment">+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-lg font-medium text-gray-700 flex items-center">
+                                <input type="checkbox" id="check-thermal-box" class="h-5 w-5 text-[#ee1d23] rounded-md focus:ring-[#ee1d23] mr-2">
+                                <span>Precisa de caixa térmica?</span>
+                            </label>
+                            <div class="items-center space-x-2 counter-group" id="counter-thermal-box">
+                                <button type="button" class="counter-btn" data-target="need-thermal-box" data-action="decrement">-</button>
+                                <input type="number" id="need-thermal-box" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="need-thermal-box" data-action="increment">+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-lg font-medium text-gray-700 flex items-center">
+                                <input type="checkbox" id="check-grill" class="h-5 w-5 text-[#ee1d23] rounded-md focus:ring-[#ee1d23] mr-2">
+                                <span>Precisa de churrasqueira?</span>
+                            </label>
+                            <div class="items-center space-x-2 counter-group" id="counter-grill">
+                                <button type="button" class="counter-btn" data-target="need-grill" data-action="decrement">-</button>
+                                <input type="number" id="need-grill" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="need-grill" data-action="increment">+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-lg font-medium text-gray-700 flex items-center">
+                                <input type="checkbox" id="check-charcoal" class="h-5 w-5 text-[#ee1d23] rounded-md focus:ring-[#ee1d23] mr-2">
+                                <span>Precisa de carvão?</span>
+                            </label>
+                            <div class="items-center space-x-2 counter-group" id="counter-charcoal">
+                                <button type="button" class="counter-btn" data-target="need-charcoal" data-action="decrement">-</button>
+                                <input type="number" id="need-charcoal" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="need-charcoal" data-action="increment">+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-lg font-medium text-gray-700 flex flex-col items-start">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="check-cubed-ice" class="h-5 w-5 text-[#ee1d23] rounded-md focus:ring-[#ee1d23] mr-2">
+                                    <span>Terá outras bebidas?</span>
+                                </div>
+                                <span id="suggested-ice-text" class="text-sm text-gray-500 mt-1" style="display: none;">Então precisa de Gelo em cubo</span>
+                            </label>
+                            <div class="items-center space-x-2 counter-group" id="counter-cubed-ice">
+                                <button type="button" class="counter-btn" data-target="need-cubed-ice" data-action="decrement">-</button>
+                                <input type="number" id="need-cubed-ice" value="0" min="0" class="counter-display rounded-md border-gray-300">
+                                <button type="button" class="counter-btn" data-target="need-cubed-ice" data-action="increment">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="calculate-btn" class="w-full bg-[#ee1d23] text-white font-bold py-3 px-6 rounded-full mt-6 transition-colors duration-300 hover:bg-red-700 shadow-lg">Calcular Orçamento</button>
+
+                    <!-- Resultados do Orçamento -->
+                    <div id="budget-results" class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Seu Orçamento</h3>
+                        <div id="results-list" class="space-y-2 text-lg">
+                            <p class="text-gray-600">Nenhum cálculo realizado ainda. Preencha as opções acima e clique em "Calcular Orçamento".</p>
+                        </div>
+                        <div id="total-price-display" class="mt-4 text-2xl font-bold text-red-600"></div>
+                        <div id="total-installments-display" class="mt-2 text-lg font-normal text-red-600"></div>
+                        <button id="formalize-btn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full mt-6 transition-colors duration-300 shadow-lg hidden">Falar com Vendedor</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Informação de Taxa de Entrega -->
+        <p class="text-center italic text-gray-600 mt-8">* Consulte a taxa de entrega para a sua região.</p>
+
+    </main>
+
+    <!-- Botão Fale Conosco (WhatsApp) -->
+    <a href="#" id="whatsapp-link" class="btn-whatsapp bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center space-x-2 transition-transform transform hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 448 512">
+            <path d="M380.9 97.4C339.6 50.1 283 23.9 224 23.9c-85.3 0-161.4 46.5-210.4 121.7-1.1 1.7-2.1 3.5-3.1 5.3-2.9 5.3-5.2 11.2-6.9 17.5-1.5 5.5-2.1 11.2-1.9 17-.6 15.3 3.6 30.2 11.8 43.6 2.3 3.7 4.9 7.3 7.8 10.7 7.7 8.9 16.6 17.3 26.5 24.9 10 7.6 20.6 14.5 31.7 20.7 11.3 6.3 22.8 11.8 34.6 16.5 12 4.7 24.3 8.8 37 12.3 12.8 3.5 26 6.3 39.4 8.2 13.5 1.9 27.2 3.1 41.1 3.3 14 0.2 28.1-.1 42.1-1.3 14-.8 28-2.6 41.8-5.3 13.8-2.7 27.5-6.1 40.9-10.4 13.5-4.4 26.5-9.7 39.2-16.1 12.8-6.4 25.1-13.8 36.7-22.3 11.9-8.7 23.1-18.4 33.6-29.2 10.8-11 20.8-22.9 29.8-35.8 9.3-13.4 17.5-27.4 24.5-42 7.2-14.8 12.4-30.2 15.4-45.9 3.1-15.8 4.2-31.9 3.2-48.1-.7-11.9-2.2-23.7-4.6-35.3-2.4-11.7-5.7-23.3-9.8-34.7zm-142.3 322.7c-5.8 4.3-11.9 8.2-18.1 11.7-6.2 3.5-12.7 6.6-19.3 9.3-6.6 2.7-13.4 5-20.3 6.9-7.1 1.8-14.4 3.3-21.7 4.3-7.5 1.1-15.2 1.6-23.1 1.6-7.8 0-15.6-.2-23.3-.8-7.7-.5-15.4-1.5-23-2.9-7.7-1.4-15.3-3.2-22.8-5.5-7.4-2.2-14.7-5-21.7-8.3-7.1-3.3-14-7.2-20.5-11.7-6.6-4.5-12.8-9.6-18.6-15.2-5.9-5.6-11.4-12-16.3-18.7-4.9-6.7-9.4-14-13.3-21.6-4-7.6-7.4-15.6-10.3-23.8-2.9-8.3-5.3-16.7-7.2-25.2-1.9-8.6-3.3-17.1-4.2-25.5-.9-8.4-1.2-16.8-.9-25.1 0-7.2 .9-14.4 2.5-21.5 1.6-7.1 3.8-14.1 6.5-21 2.7-6.9 6-13.7 9.8-20.3 3.8-6.7 8.2-13.1 13.1-19.3 5.1-6.4 10.8-12.5 17-18.2 6.3-5.7 12.9-10.9 20-15.8 7.2-4.8 14.7-9.3 22.5-13.3 7.8-4 15.8-7.6 24.1-10.8 8.4-3.1 16.9-5.8 25.5-8.1 8.7-2.3 17.5-4 26.5-5.1 9.1-1.1 18.3-1.6 27.5-1.5 9.4 0.1 18.8 0.5 28.1 1.2 9.3 0.7 18.5 1.7 27.6 3 9 1.4 18 3.1 26.8 5.2 8.7 2.2 17.3 4.7 25.7 7.5 8.5 2.8 16.8 6 24.8 9.5 8.1 3.6 15.9 7.6 23.4 11.9 7.6 4.4 14.9 9.3 22.1 14.4 7.2 5.2 14.1 10.7 20.5 16.5 6.4 5.9 12.4 12.2 18 18.9 5.8 6.9 10.9 14.1 15.3 21.6 4.5 7.6 8.3 15.6 11.4 23.8 3.1 8.3 5.6 16.8 7.4 25.4 1.8 8.7 3 17.4 3.5 26.1 0.4 8.7 0.4 17.4-.2 26.1-.5 8.7-1.4 17.3-2.7 25.8-1.3 8.5-3.1 16.9-5.3 25.1-2.2 8.3-4.9 16.5-8.1 24.5-3.2 8-6.8 15.9-10.9 23.6-4.1 7.7-8.6 15.2-13.6 22.5-5.1 7.3-10.7 14.5-16.7 21.3z"/>
+        </svg>
+        <span>Fale Conosco</span>
+    </a>
+
+    <!-- Footer Section -->
+    <footer class="bg-[#ee1d23] text-white text-center py-8 px-4 rounded-t-3xl mt-12">
+        <div class="container mx-auto">
+            <h3 class="text-2xl font-semibold mb-4">Entre em Contato</h3>
+            <p class="mb-1">Telefone: (18) 98173-0244</p>
+            <p class="mb-1">E-mail: claudioappfreitas@gmail.com</p>
+            <p>Endereço: Av. Joaquim Constantino, 1882 - Vila Nova Prudente</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Prices per liter
+            const pricesPerLiter = {
+                'pilsen': 10.00,
+                'brahma': 18.00,
+                'ipa': 15.00,
+                'vinho': 15.00
+            };
+            // Barrel sizes in liters
+            const barrelSizes = {
+                'pilsen': [30, 50],
+                'brahma': [30, 50],
+                'ipa': [10, 20, 30, 50],
+                'vinho': [10, 20, 30, 50]
+            };
+            const equipmentPrices = {
+                'tables': 15.00,
+                'thermal-box': 150.00,
+                'grill': 150.00,
+                'charcoal': 50.00,
+                'cubed-ice': 12.00,
+            };
+
+            const personInputs = document.querySelectorAll('#drinking-adults, #non-drinking-adults, #children');
+            const choppCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="chopp-"]');
+            const otherCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="check-"]');
+            const counterButtons = document.querySelectorAll('.counter-btn');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const formalizeBtn = document.getElementById('formalize-btn');
+            let lastCalculatedBudget = '';
+
+            // Logic for the Chopp Catalog buttons
+            const barrelButtons = document.querySelectorAll('.btn-barrel');
+            barrelButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const choppType = event.target.dataset.chopp;
+                    const liters = parseInt(event.target.dataset.liters);
+                    const pricePerLiter = pricesPerLiter[choppType];
+                    const totalCost = liters * pricePerLiter;
+                    const installment = totalCost / 3;
+
+                    // Update button colors for the specific chopp type
+                    const parentDiv = event.target.closest('.rounded-xl');
+                    const buttonsInParent = parentDiv.querySelectorAll('.btn-barrel');
+                    buttonsInParent.forEach(btn => {
+                        btn.classList.remove('bg-white', 'text-black', 'shadow-md');
+                        btn.classList.add('bg-[#ee1d23]', 'text-white');
+                    });
+                    
+                    event.target.classList.remove('bg-[#ee1d23]', 'text-white');
+                    event.target.classList.add('bg-white', 'text-black', 'shadow-md');
+
+                    // Display the total price
+                    const totalDisplay = parentDiv.querySelector('.chopp-total');
+                    totalDisplay.innerHTML = `
+                        <p class="text-xl font-bold text-[#ee1d23]">Total: R$ ${totalCost.toFixed(2).replace('.', ',')}</p>
+                        <p class="text-base font-normal text-[#ee1d23]">ou 3x de R$ ${installment.toFixed(2).replace('.', ',')}</p>
+                    `;
+                });
+            });
+
+
+            // Function to handle the chopp button color change in "Calcule sua festa"
+            const updateChoppButtonStyles = () => {
+                choppCheckboxes.forEach(checkbox => {
+                    const label = document.getElementById(checkbox.id + '-label');
+                    if (checkbox.checked) {
+                        label.classList.remove('bg-[#ee1d23]', 'text-white');
+                        label.classList.add('bg-white', 'text-black', 'shadow-md');
+                    } else {
+                        label.classList.remove('bg-white', 'text-black', 'shadow-md');
+                        label.classList.add('bg-[#ee1d23]', 'text-white');
+                    }
+                });
+            };
+
+            // Find the best barrel size based on required liters
+            const findBestBarrel = (requiredLiters, availableSizes) => {
+                const sortedSizes = availableSizes.sort((a, b) => a - b);
+                for (const size of sortedSizes) {
+                    if (size >= requiredLiters) {
+                        return size;
+                    }
+                }
+                const baseBarrel = 30;
+                return Math.ceil(requiredLiters / baseBarrel) * baseBarrel;
+            };
+
+            choppCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateChoppButtonStyles);
+            });
+
+            otherCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    const counterGroup = document.getElementById(`counter-${event.target.id.replace('check-', '')}`);
+                    const isChecked = event.target.checked;
+                    const drinkingAdults = parseInt(document.getElementById('drinking-adults').value) || 0;
+
+                    if (counterGroup) {
+                         if (isChecked) {
+                            counterGroup.classList.add('active');
+                            const targetId = event.target.id.replace('check-', 'need-');
+                            const input = document.getElementById(targetId);
+                            const totalPeople = (parseInt(document.getElementById('drinking-adults').value) || 0) +
+                                                (parseInt(document.getElementById('non-drinking-adults').value) || 0) +
+                                                (parseInt(document.getElementById('children').value) || 0);
+
+                            let value;
+                            switch(event.target.id) {
+                                case 'check-tables':
+                                    value = Math.ceil(totalPeople / 4);
+                                    break;
+                                case 'check-grill':
+                                    document.getElementById('check-charcoal').checked = true;
+                                    const charcoalInput = document.getElementById('need-charcoal');
+                                    const charcoalCounter = document.getElementById('counter-charcoal');
+                                    charcoalCounter.classList.add('active');
+                                    charcoalInput.value = 1;
+                                    value = 1;
+                                    break;
+                                case 'check-charcoal':
+                                    const grillChecked = document.getElementById('check-grill').checked;
+                                    value = grillChecked ? (parseInt(document.getElementById('need-grill').value) || 1) : 1;
+                                    break;
+                                case 'check-thermal-box':
+                                    value = 1;
+                                    break;
+                                case 'check-cubed-ice':
+                                    value = Math.ceil(drinkingAdults / 20);
+                                    break;
+                                default:
+                                    value = 1;
+                                    break;
+                            }
+                            if (input) {
+                                input.value = value;
+                            }
+                        } else {
+                            counterGroup.classList.remove('active');
+                            const targetId = event.target.id.replace('check-', 'need-');
+                            const input = document.getElementById(targetId);
+                            if (input) {
+                                input.value = 0;
+                            }
+                        }
+                    }
+                    const suggestedIceText = document.getElementById('suggested-ice-text');
+                    if (suggestedIceText) {
+                        suggestedIceText.style.display = document.getElementById('check-cubed-ice').checked ? 'block' : 'none';
+                    }
+                });
+            });
+
+            counterButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const targetId = event.target.dataset.target;
+                    const action = event.target.dataset.action;
+                    const input = document.getElementById(targetId);
+                    let value = parseInt(input.value);
+
+                    if (action === 'increment') {
+                        value++;
+                    } else if (action === 'decrement' && value > 0) {
+                        value--;
+                    }
+                    input.value = value;
+
+                    if (targetId === 'need-grill' && document.getElementById('check-charcoal').checked) {
+                        document.getElementById('need-charcoal').value = value;
+                    }
+                });
+            });
+
+            calculateBtn.addEventListener('click', () => {
+                let totalBudget = 0;
+                let budgetSummary = '';
+                const resultsList = document.getElementById('results-list');
+                resultsList.innerHTML = '';
+                
+                const drinkingAdults = parseInt(document.getElementById('drinking-adults').value) || 0;
+                const selectedChopps = Array.from(choppCheckboxes).filter(cb => cb.checked).map(cb => cb.id.replace('chopp-', ''));
+
+                // Chopp calculation logic
+                let choppItems = {};
+                if (selectedChopps.length > 0) {
+                    const totalLitersNeeded = drinkingAdults * 2.5;
+                    
+                    if (selectedChopps.length === 1) {
+                        const choppType = selectedChopps[0];
+                        const liters = findBestBarrel(totalLitersNeeded, barrelSizes[choppType]);
+                        choppItems[choppType] = liters;
+                    } else if (selectedChopps.length === 2) {
+                        const [chopp1, chopp2] = selectedChopps;
+                        const isPilsenBrahmaCombo = (chopp1 === 'pilsen' && chopp2 === 'brahma') || (chopp1 === 'brahma' && chopp2 === 'pilsen');
+                        const isPilsenOrBrahma = ['pilsen', 'brahma'].some(c => selectedChopps.includes(c));
+                        const isIpaOrVinho = ['ipa', 'vinho'].some(c => selectedChopps.includes(c));
+
+                        if (isPilsenBrahmaCombo) {
+                            const halfLiters = findBestBarrel(totalLitersNeeded / 2, barrelSizes.pilsen);
+                            choppItems.pilsen = halfLiters;
+                            choppItems.brahma = halfLiters;
+                        } else if (isPilsenOrBrahma && isIpaOrVinho) {
+                            const largeChopp = selectedChopps.find(c => ['pilsen', 'brahma'].includes(c));
+                            const specialChopp = selectedChopps.find(c => ['ipa', 'vinho'].includes(c));
+                            choppItems[largeChopp] = 60;
+                            choppItems[specialChopp] = 10;
+                        }
+                    } else if (selectedChopps.length === 3 && selectedChopps.includes('pilsen') && selectedChopps.includes('brahma') && (selectedChopps.includes('ipa') || selectedChopps.includes('vinho'))) {
+                        const specialChopp = selectedChopps.find(c => ['ipa', 'vinho'].includes(c));
+                        choppItems.pilsen = 30;
+                        choppItems.brahma = 30;
+                        choppItems[specialChopp] = 10;
+                    } else {
+                        const litersPerChopp = findBestBarrel(totalLitersNeeded / selectedChopps.length, barrelSizes.ipa);
+                        selectedChopps.forEach(chopp => {
+                            choppItems[chopp] = litersPerChopp;
+                        });
+                    }
+                }
+
+                let choppTotalCost = 0;
+                for (const chopp in choppItems) {
+                    const liters = choppItems[chopp];
+                    const cost = liters * pricesPerLiter[chopp];
+                    choppTotalCost += cost;
+                    resultsList.innerHTML += `<p><strong>Chopp ${chopp.charAt(0).toUpperCase() + chopp.slice(1)} (${liters} Litros):</strong> R$ ${cost.toFixed(2).replace('.', ',')}</p>`;
+                    budgetSummary += `\nChopp ${chopp.charAt(0).toUpperCase() + chopp.slice(1)} (${liters} Litros): R$ ${cost.toFixed(2).replace('.', ',')}`;
+                }
+                totalBudget += choppTotalCost;
+
+                otherCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const itemId = checkbox.id.replace('check-', '');
+                        const quantity = parseInt(document.getElementById(`need-${itemId}`).value) || 0;
+                        if (quantity > 0) {
+                            const itemCost = equipmentPrices[itemId] * quantity;
+                            totalBudget += itemCost;
+                            const itemName = checkbox.nextElementSibling.textContent.trim().replace('?', '');
+                            resultsList.innerHTML += `<p><strong>${itemName} (${quantity} unidade${quantity > 1 ? 's' : ''}):</strong> R$ ${itemCost.toFixed(2).replace('.', ',')}</p>`;
+                            budgetSummary += `\n${itemName} (${quantity} unidade${quantity > 1 ? 's' : ''}): R$ ${itemCost.toFixed(2).replace('.', ',')}`;
+                        }
+                    }
+                });
+
+                if (totalBudget > 0) {
+                    const totalInstallments = totalBudget / 3;
+                    document.getElementById('total-price-display').textContent = `Total: R$ ${totalBudget.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('total-installments-display').textContent = `ou 3x de R$ ${totalInstallments.toFixed(2).replace('.', ',')}`;
+
+                    budgetSummary += `\n\nTotal: R$ ${totalBudget.toFixed(2).replace('.', ',')}`;
+                    budgetSummary += `\nou 3x de R$ ${totalInstallments.toFixed(2).replace('.', ',')}`;
+                    formalizeBtn.style.display = 'block';
+                    lastCalculatedBudget = budgetSummary;
+                } else {
+                    resultsList.innerHTML = `<p class="text-gray-600">Nenhum item selecionado. Por favor, escolha os produtos para calcular o orçamento.</p>`;
+                    document.getElementById('total-price-display').textContent = '';
+                    document.getElementById('total-installments-display').textContent = '';
+                    formalizeBtn.style.display = 'none';
+                    lastCalculatedBudget = '';
+                }
+            });
+            
+            formalizeBtn.addEventListener('click', () => {
+                const message = `Olá! Gostaria de formalizar um pedido com base no orçamento que fiz no site. Seguem os detalhes:\n${lastCalculatedBudget}`;
+                const phoneNumber = '5518981730244';
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
+            document.getElementById('whatsapp-link').addEventListener('click', function(event) {
+                event.preventDefault();
+                const phoneNumber = '5518981730244';
+                const message = 'Olá, Chopp do Claudinho! Gostaria de fazer um orçamento. Vi o site de vocês!';
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
+            // Initial call to set the correct styles on page load
+            updateChoppButtonStyles();
+        });
+    </script>
+</body>
+</html>
