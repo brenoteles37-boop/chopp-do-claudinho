@@ -7,6 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased p-4 md:p-8">
 
@@ -65,20 +70,126 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Seção de Preços -->
             <section>
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Preços dos Produtos</h2>
                 <div id="product-prices-container" class="space-y-6">
-                    <!-- Campos de preço serão gerados aqui dinamicamente -->
                 </div>
             </section>
-            
             <button type="submit" class="w-full bg-[#ee1d23] text-white font-bold py-3 px-6 rounded-full mt-6 transition-colors duration-300 hover:bg-red-700 shadow-lg">Salvar Alterações</button>
             <p id="status-message" class="text-center mt-4 text-sm font-medium hidden"></p>
         </form>
     </div>
 
-    <script type="module" src="admin.js"></script>
+    <!-- Scripts do Firebase -->
+    <script type="module">
+        // Importa as funções necessárias do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJuQYiYJrFRwNo2uHXK3M4fPet1AEE6Es",
+            authDomain: "chopp-do-claudinho.firebaseapp.com",
+            projectId: "chopp-do-claudinho",
+            storageBucket: "chopp-do-claudinho.firebasestorage.app",
+            messagingSenderId: "790321862343",
+            appId: "1:790321862343:web:f6a8acdd2cd0863d1110e2"
+        };
+        
+        const appId = firebaseConfig.projectId;
+
+        let userId;
+        let db;
+
+        const loadData = async () => {
+            try {
+                if (!db) {
+                    console.error("Banco de dados não está pronto para carregar dados.");
+                    return;
+                }
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    console.log("Dados carregados com sucesso:", data);
+                    
+                    document.getElementById('header-title').value = data.headerTitle || '';
+                    document.getElementById('header-subtitle').value = data.headerSubtitle || '';
+                    document.getElementById('chopp-section-title').value = data.choppSectionTitle || '';
+                    document.getElementById('supplies-section-title').value = data.suppliesSectionTitle || '';
+                    document.getElementById('rental-section-title').value = data.rentalSectionTitle || '';
+                    document.getElementById('calculator-section-title').value = data.calculatorSectionTitle || '';
+                    document.getElementById('footer-text').value = data.footerText || '';
+                    document.getElementById('footer-contact-title').value = data.footerContactTitle || '';
+                    document.getElementById('footer-phone').value = data.footerPhone || '';
+                    document.getElementById('footer-email').value = data.footerEmail || '';
+                    document.getElementById('footer-address').value = data.footerAddress || '';
+                    
+                } else {
+                    console.log("Nenhum dado encontrado. O formulário está vazio.");
+                }
+            } catch (e) {
+                console.error("Erro ao ler os dados do Firestore:", e);
+            }
+        };
+
+        const saveData = async (event) => {
+            event.preventDefault();
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.classList.add('hidden');
+
+            try {
+                if (!db) {
+                    throw new Error("O banco de dados do Firebase não está pronto.");
+                }
+
+                const data = {
+                    headerTitle: document.getElementById('header-title').value,
+                    headerSubtitle: document.getElementById('header-subtitle').value,
+                    choppSectionTitle: document.getElementById('chopp-section-title').value,
+                    suppliesSectionTitle: document.getElementById('supplies-section-title').value,
+                    rentalSectionTitle: document.getElementById('rental-section-title').value,
+                    calculatorSectionTitle: document.getElementById('calculator-section-title').value,
+                    footerText: document.getElementById('footer-text').value,
+                    footerContactTitle: document.getElementById('footer-contact-title').value,
+                    footerPhone: document.getElementById('footer-phone').value,
+                    footerEmail: document.getElementById('footer-email').value,
+                    footerAddress: document.getElementById('footer-address').value,
+                };
+
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'config', 'content');
+                await setDoc(docRef, data, { merge: true });
+
+                statusMessage.textContent = 'Alterações salvas com sucesso!';
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('text-green-600');
+                console.log("Documento gravado com ID: ", docRef.id);
+            } catch (e) {
+                statusMessage.textContent = 'Erro ao salvar: ' + e.message;
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('text-red-600');
+                console.error("Erro ao adicionar documento: ", e);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                const auth = getAuth(app);
+                
+                await signInAnonymously(auth);
+                userId = auth.currentUser.uid;
+                
+                console.log("Firebase e autenticação inicializados com sucesso!");
+                await loadData();
+
+                document.getElementById('admin-form').addEventListener('submit', saveData);
+            } catch (error) {
+                console.error("Erro ao inicializar o Firebase ou autenticar:", error);
+            }
+        });
+    </script>
 </body>
 </html>
