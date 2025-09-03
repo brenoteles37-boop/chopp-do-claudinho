@@ -1,0 +1,601 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, onSnapshot, setDoc, getDoc, setLogLevel } from 'firebase/firestore';
+import { Home, Beer, Settings, PlusCircle, Trash2, Edit2, Save, XCircle } from 'lucide-react';
+
+// Ativa logs de depuração para o Firestore
+setLogLevel('Debug');
+
+// Dados iniciais para o caso de o banco de dados estar vazio
+const initialData = {
+    texts: {
+        headerTitle: "Chopp do Claudinho",
+        headerSubtitle: "Sua distribuidora de chopp e suprimentos para festas!",
+        choppSectionTitle: "Chopps Especiais",
+        suppliesSectionTitle: "Outros Produtos",
+        rentalSectionTitle: "Locação",
+        calculatorSectionTitle: "Calcule sua festa",
+        footerText: "* Consulte a taxa de entrega para a sua região.",
+        footerContactTitle: "Entre em Contato",
+        footerPhone: "(18) 98173-0244",
+        footerEmail: "claudioappfreitas@gmail.com",
+        footerAddress: "Av. Joaquim Constantino, 1882 - Vila Nova Prudente",
+        logoUrl: "https://placehold.co/150x50/ee1d23/ffffff?text=Logo"
+    },
+    categories: [
+        { id: 'chopps', name: 'Chopps Especiais' },
+        { id: 'supplies', name: 'Outros Produtos' },
+        { id: 'rentals', name: 'Locação' }
+    ],
+    products: {
+        chopps: [
+            { id: 'pilsen', name: 'Chopp Pilsen', price: 10.00, isChopp: true, barrelSizes: [30, 50] },
+            { id: 'brahma', name: 'Chopp Brahma', price: 18.00, isChopp: true, barrelSizes: [30, 50] },
+            { id: 'ipa', name: 'Chopp IPA', price: 15.00, isChopp: true, barrelSizes: [10, 20, 30, 50] },
+            { id: 'vinho', name: 'Chopp Vinho', price: 15.00, isChopp: true, barrelSizes: [10, 20, 30, 50] }
+        ],
+        supplies: [
+            { id: 'charcoal', name: 'Carvão', price: 50.00 },
+            { id: 'cubed-ice', name: 'Gelo em Cubo', price: 12.00 }
+        ],
+        rentals: [
+            { id: 'thermal-box', name: 'Caixa Térmica', price: 150.00 },
+            { id: 'tables', name: 'Jogo de Mesa', price: 15.00 },
+            { id: 'grill', name: 'Churrasqueira', price: 150.00 }
+        ]
+    }
+};
+
+// Componente para o toast de notificação
+const Toast = ({ message, type, onClose }) => {
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    return (
+        <div className={`fixed bottom-8 right-8 ${bgColor} text-white px-6 py-4 rounded-full shadow-lg transition-all duration-300 transform`}>
+            <span>{message}</span>
+            <button onClick={onClose} className="ml-4 text-white hover:text-gray-200">
+                <XCircle size={18} />
+            </button>
+        </div>
+    );
+};
+
+// Componente de Diálogo de Confirmação
+const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
+    return (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-auto">
+                <p className="text-gray-800 text-lg mb-4">{message}</p>
+                <div className="flex justify-end gap-2">
+                    <button onClick={onCancel} className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                        Não
+                    </button>
+                    <button onClick={onConfirm} className="px-4 py-2 bg-[#ee1d23] text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Sim
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Componente para a barra lateral
+const Sidebar = ({ activeTab, onTabChange, userId }) => {
+    const navItems = [
+        { name: 'Cabeçalho', icon: <Home />, key: 'header' },
+        { name: 'Catálogo', icon: <Beer />, key: 'catalog' },
+        { name: 'Configurações', icon: <Settings />, key: 'settings' },
+    ];
+
+    return (
+        <aside className="w-64 bg-[#ee1d23] text-white flex flex-col p-4 shadow-lg h-screen fixed top-0 left-0">
+            <div className="flex items-center justify-center p-6 border-b border-red-700">
+                <h2 className="text-2xl font-bold">Painel Admin</h2>
+            </div>
+            <nav className="mt-8 flex-1">
+                <ul>
+                    {navItems.map(item => (
+                        <li key={item.key} className="mb-2">
+                            <button
+                                onClick={() => onTabChange(item.key)}
+                                className={`flex items-center w-full p-4 rounded-lg transition-colors duration-200 ${
+                                    activeTab === item.key ? 'bg-white text-[#ee1d23]' : 'hover:bg-red-600'
+                                }`}
+                            >
+                                <span className="mr-3">{item.icon}</span>
+                                <span className="text-lg font-medium">{item.name}</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+            <div className="p-4 text-xs opacity-75 break-words">
+                <p className="font-semibold">ID do Usuário:</p>
+                <p>{userId}</p>
+            </div>
+        </aside>
+    );
+};
+
+// Componente para a seção de Cabeçalho
+const HeaderSection = ({ data, onSave }) => {
+    const [headerTexts, setHeaderTexts] = useState(data.texts);
+    const [logoPreview, setLogoPreview] = useState(data.texts.logoUrl);
+    const [toast, setToast] = useState(null);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setHeaderTexts(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogoPreview(reader.result);
+                setHeaderTexts(prev => ({ ...prev, logoUrl: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSave = async () => {
+        await onSave({ ...data, texts: headerTexts });
+        setToast({ message: 'Alterações salvas com sucesso!', type: 'success' });
+    };
+
+    return (
+        <div className="container-section">
+            <h2 className="text-2xl font-bold mb-4 flex items-center"><Home className="mr-2" /> Cabeçalho</h2>
+            <div className="flex flex-col md:flex-row items-center mb-6">
+                <div className="flex-1">
+                    <label htmlFor="logo-upload" className="block text-gray-700 font-bold mb-2">Logo</label>
+                    <input type="file" id="logo-upload" onChange={handleLogoUpload} className="w-full text-gray-700" />
+                </div>
+                {logoPreview && (
+                    <img src={logoPreview} alt="Logo Preview" className="mt-4 md:mt-0 md:ml-6 max-w-xs rounded-lg shadow-md" />
+                )}
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Título</label>
+                <input
+                    type="text"
+                    name="headerTitle"
+                    value={headerTexts.headerTitle}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ee1d23]"
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Subtítulo</label>
+                <input
+                    type="text"
+                    name="headerSubtitle"
+                    value={headerTexts.headerSubtitle}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ee1d23]"
+                />
+            </div>
+            <button onClick={handleSave} className="btn-save flex items-center">
+                <Save className="mr-2" size={20} /> Salvar Alterações
+            </button>
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        </div>
+    );
+};
+
+// Componente para a seção de Catálogo
+const CatalogSection = ({ data, onSave }) => {
+    const [catalogData, setCatalogData] = useState(data);
+    const [activeCategory, setActiveCategory] = useState(data.categories[0]?.id);
+    const [editingCategoryId, setEditingCategoryId] = useState(null);
+    const [toast, setToast] = useState(null);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
+
+    useEffect(() => {
+        setCatalogData(data);
+        if (activeCategory === null || !data.categories.find(c => c.id === activeCategory)) {
+            setActiveCategory(data.categories[0]?.id || null);
+        }
+    }, [data]);
+
+    const handleCategoryNameChange = (e) => {
+        const newName = e.target.value;
+        setCatalogData(prev => ({
+            ...prev,
+            categories: prev.categories.map(cat =>
+                cat.id === editingCategoryId ? { ...cat, name: newName } : cat
+            ),
+        }));
+    };
+
+    const handleSaveCategoryName = async () => {
+        const newName = catalogData.categories.find(cat => cat.id === editingCategoryId)?.name;
+        const updatedTexts = {
+            ...catalogData.texts,
+            [`${editingCategoryId}SectionTitle`]: newName
+        };
+        await onSave({ ...catalogData, texts: updatedTexts });
+        setEditingCategoryId(null);
+        setToast({ message: 'Nome da categoria salvo!', type: 'success' });
+    };
+
+    const handleAddCategory = async () => {
+        const newName = prompt("Digite o nome da nova categoria:");
+        if (newName) {
+            const newId = newName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const newCategory = { id: newId, name: newName };
+            const newCategories = [...catalogData.categories, newCategory];
+            const newProducts = { ...catalogData.products, [newId]: [] };
+            const updatedTexts = { ...catalogData.texts, [`${newId}SectionTitle`]: newName };
+            
+            await onSave({
+                ...catalogData,
+                categories: newCategories,
+                products: newProducts,
+                texts: updatedTexts
+            });
+            setActiveCategory(newId);
+            setToast({ message: 'Nova categoria adicionada!', type: 'success' });
+        }
+    };
+
+    const handleDeleteProduct = (productId) => {
+        setShowConfirm(true);
+        setConfirmAction(() => async () => {
+            const newProducts = { ...catalogData.products };
+            newProducts[activeCategory] = newProducts[activeCategory].filter(prod => prod.id !== productId);
+            await onSave({ ...catalogData, products: newProducts });
+            setToast({ message: 'Produto excluído!', type: 'success' });
+            setShowConfirm(false);
+        });
+    };
+
+    const handleProductChange = (e, productId, categoryId) => {
+        const { name, value, type, checked } = e.target;
+        const newProducts = { ...catalogData.products };
+        newProducts[categoryId] = newProducts[categoryId].map(prod => {
+            if (prod.id === productId) {
+                return {
+                    ...prod,
+                    [name]: type === 'checkbox' ? checked : (name === 'price' ? parseFloat(value) : value)
+                };
+            }
+            return prod;
+        });
+        setCatalogData(prev => ({ ...prev, products: newProducts }));
+    };
+
+    const handleBarrelSizeChange = (e, productId, categoryId) => {
+        const { value, checked } = e.target;
+        const newProducts = { ...catalogData.products };
+        newProducts[categoryId] = newProducts[categoryId].map(prod => {
+            if (prod.id === productId) {
+                const newSizes = checked
+                    ? [...new Set([...prod.barrelSizes, parseInt(value)])]
+                    : prod.barrelSizes.filter(size => size !== parseInt(value));
+                return { ...prod, barrelSizes: newSizes };
+            }
+            return prod;
+        });
+        setCatalogData(prev => ({ ...prev, products: newProducts }));
+    };
+
+    const handleAddProduct = () => {
+        setShowConfirm(true);
+        setConfirmAction(() => async () => {
+            const isChopp = confirm("Este produto é um Chopp?"); // Usando 'confirm' para manter a simplicidade da pergunta
+            const newProduct = {
+                id: `new-${Date.now()}`,
+                name: 'Novo Produto',
+                price: 0,
+                isChopp: isChopp,
+                barrelSizes: isChopp ? [] : undefined
+            };
+            const newProducts = { ...catalogData.products };
+            newProducts[activeCategory] = [...newProducts[activeCategory], newProduct];
+            await onSave({ ...catalogData, products: newProducts });
+            setToast({ message: 'Produto adicionado!', type: 'success' });
+            setShowConfirm(false);
+        });
+    };
+    
+    const handleSave = async () => {
+        await onSave(catalogData);
+        setToast({ message: 'Catálogo salvo com sucesso!', type: 'success' });
+    };
+    
+    const activeProducts = catalogData.products[activeCategory] || [];
+
+    return (
+        <div className="container-section">
+            <h2 className="text-2xl font-bold mb-4 flex items-center"><Beer className="mr-2" /> Catálogo</h2>
+
+            <div className="mb-6">
+                <h3 className="text-xl font-bold mb-3">Categorias</h3>
+                <div className="flex flex-wrap gap-4">
+                    {catalogData.categories.map(cat => (
+                        <div key={cat.id} className="flex items-center">
+                            {editingCategoryId === cat.id ? (
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="text"
+                                        value={cat.name}
+                                        onChange={handleCategoryNameChange}
+                                        className="px-2 py-1 rounded-md border"
+                                    />
+                                    <button onClick={handleSaveCategoryName} className="text-green-500 hover:text-green-600">
+                                        <Save size={20} />
+                                    </button>
+                                    <button onClick={() => setEditingCategoryId(null)} className="text-red-500 hover:text-red-600">
+                                        <XCircle size={20} />
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => setActiveCategory(cat.id)}
+                                    className={`px-4 py-2 rounded-full font-semibold transition-colors duration-200 ${
+                                        activeCategory === cat.id ? 'bg-[#ee1d23] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                                >
+                                    {cat.name}
+                                </button>
+                            )}
+                            {editingCategoryId !== cat.id && (
+                                <button onClick={() => setEditingCategoryId(cat.id)} className="ml-2 text-gray-500 hover:text-gray-700">
+                                    <Edit2 size={18} />
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                    <button onClick={handleAddCategory} className="px-4 py-2 rounded-full font-semibold bg-green-500 text-white hover:bg-green-600">
+                        <PlusCircle size={18} className="inline mr-1" /> Adicionar Categoria
+                    </button>
+                </div>
+            </div>
+
+            <div className="mb-6">
+                <h3 className="text-xl font-bold mb-3">Produtos em {catalogData.categories.find(c => c.id === activeCategory)?.name}</h3>
+                <div className="space-y-4">
+                    {activeProducts.map(product => (
+                        <div key={product.id} className="p-4 bg-gray-100 rounded-lg shadow-inner">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="font-semibold text-gray-800">{product.name}</span>
+                                <div className="space-x-2">
+                                    <button onClick={() => handleDeleteProduct(product.id)} className="text-red-500 hover:text-red-700">
+                                        <Trash2 size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex flex-col md:flex-row md:gap-4">
+                                <div className="flex-1 input-group">
+                                    <label>Nome</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={product.name}
+                                        onChange={(e) => handleProductChange(e, product.id, activeCategory)}
+                                        className="w-full p-2 rounded-lg border"
+                                    />
+                                </div>
+                                <div className="flex-1 input-group">
+                                    <label>Preço</label>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value={product.price}
+                                        onChange={(e) => handleProductChange(e, product.id, activeCategory)}
+                                        className="w-full p-2 rounded-lg border"
+                                    />
+                                </div>
+                            </div>
+                            {product.isChopp && (
+                                <div className="mt-4">
+                                    <label className="block text-gray-700 font-bold mb-2">Litragem:</label>
+                                    <div className="flex flex-wrap gap-4">
+                                        {[10, 20, 30, 50].map(size => (
+                                            <div key={size} className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id={`chopp-${product.id}-${size}`}
+                                                    name="barrelSizes"
+                                                    value={size}
+                                                    checked={product.barrelSizes.includes(size)}
+                                                    onChange={(e) => handleBarrelSizeChange(e, product.id, activeCategory)}
+                                                    className="w-4 h-4 text-[#ee1d23] rounded focus:ring-[#ee1d23]"
+                                                />
+                                                <label htmlFor={`chopp-${product.id}-${size}`} className="ml-2">{size}L</label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <button onClick={handleAddProduct} className="btn-save w-full">
+                <PlusCircle size={20} className="inline mr-2" /> Adicionar Produto
+            </button>
+            <button onClick={handleSave} className="btn-save w-full mt-4 flex items-center justify-center">
+                <Save className="mr-2" size={20} /> Salvar Alterações
+            </button>
+            {showConfirm && (
+                <ConfirmDialog
+                    message="Tem certeza que deseja excluir este produto?"
+                    onConfirm={confirmAction}
+                    onCancel={() => setShowConfirm(false)}
+                />
+            )}
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        </div>
+    );
+};
+
+// Componente para a seção de Configurações
+const SettingsSection = ({ data, onSave }) => {
+    const [settings, setSettings] = useState(data.texts);
+    const [toast, setToast] = useState(null);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSettings(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        await onSave({ ...data, texts: settings });
+        setToast({ message: 'Configurações salvas com sucesso!', type: 'success' });
+    };
+
+    return (
+        <div className="container-section">
+            <h2 className="text-2xl font-bold mb-4 flex items-center"><Settings className="mr-2" /> Configurações</h2>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Telefone</label>
+                <input
+                    type="text"
+                    name="footerPhone"
+                    value={settings.footerPhone}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ee1d23]"
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">E-mail</label>
+                <input
+                    type="email"
+                    name="footerEmail"
+                    value={settings.footerEmail}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ee1d23]"
+                />
+            </div>
+            <div className="mb-4">
+                <label className="block text-gray-700 font-bold mb-2">Endereço</label>
+                <input
+                    type="text"
+                    name="footerAddress"
+                    value={settings.footerAddress}
+                    onChange={handleChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ee1d23]"
+                />
+            </div>
+            <button onClick={handleSave} className="btn-save flex items-center">
+                <Save className="mr-2" size={20} /> Salvar Configurações
+            </button>
+            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        </div>
+    );
+};
+
+// Componente principal da aplicação
+const App = () => {
+    const [activeTab, setActiveTab] = useState('header');
+    const [data, setData] = useState(null);
+    const [db, setDb] = useState(null);
+    const [auth, setAuth] = useState(null);
+    const [userId, setUserId] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    useEffect(() => {
+        if (!firebaseConfig) {
+            console.error("Firebase config is missing.");
+            setLoading(false);
+            return;
+        }
+
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+        const firebaseAuth = getAuth(app);
+        
+        setDb(firestore);
+        setAuth(firebaseAuth);
+
+        const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+            if (user) {
+                setUserId(user.uid);
+            } else {
+                try {
+                    await signInWithCustomToken(firebaseAuth, initialAuthToken);
+                } catch (error) {
+                    console.error("Falha ao autenticar com token personalizado:", error);
+                    await signInAnonymously(firebaseAuth);
+                }
+            }
+        });
+        return () => unsubscribe();
+    }, [firebaseConfig, initialAuthToken]);
+    
+    useEffect(() => {
+        if (db && userId) {
+            const docRef = doc(db, `artifacts/${appId}/public/data/chopp-data/config`);
+            const unsubscribe = onSnapshot(docRef, async (docSnap) => {
+                if (docSnap.exists()) {
+                    setData(docSnap.data());
+                } else {
+                    await setDoc(docRef, initialData);
+                    setData(initialData);
+                }
+                setLoading(false);
+            }, (error) => {
+                console.error("Erro ao ler dados do Firestore:", error);
+                setLoading(false);
+            });
+
+            return () => unsubscribe();
+        }
+    }, [db, userId, appId]);
+
+    const saveData = async (newData) => {
+        if (!db || !userId) {
+            console.error("Banco de dados não inicializado ou usuário não autenticado.");
+            return;
+        }
+        try {
+            const docRef = doc(db, `artifacts/${appId}/public/data/chopp-data/config`);
+            await setDoc(docRef, newData, { merge: true });
+            console.log("Dados salvos com sucesso no Firestore.");
+        } catch (error) {
+            console.error("Erro ao salvar dados no Firestore:", error);
+        }
+    };
+
+    const renderContent = () => {
+        if (loading) {
+            return <div className="text-center text-xl text-gray-500 mt-20">Carregando...</div>;
+        }
+
+        if (!data) {
+            return <div className="text-center text-xl text-red-500 mt-20">Erro ao carregar os dados. Tente recarregar a página.</div>;
+        }
+
+        switch (activeTab) {
+            case 'header':
+                return <HeaderSection data={data} onSave={saveData} />;
+            case 'catalog':
+                return <CatalogSection data={data} onSave={saveData} />;
+            case 'settings':
+                return <SettingsSection data={data} onSave={saveData} />;
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="flex">
+            <Sidebar activeTab={activeTab} onTabChange={setActiveTab} userId={userId || "Carregando..."} />
+            <main className="flex-1 ml-64 p-8">
+                <h1 className="text-4xl font-bold text-gray-800 mb-8">Gerenciamento do Site</h1>
+                {renderContent()}
+            </main>
+        </div>
+    );
+};
+
+export default App;
